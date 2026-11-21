@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MEO ALARM</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="apple-touch-icon" href="./icon-512.png" />
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#080b12" />
+</head>
+<body class="dark-mode">
+  <!-- In-App Routine Banner with Snooze -->
+  <div id="inAppRoutineToast" class="routine-toast hidden">
+    <div class="toast-icon">🐱</div>
+    <div class="toast-body">
+      <strong id="toastTitle">MEO Reminder</strong>
+      <p id="toastMsg">Task starting soon!</p>
+      <div class="toast-actions">
+        <button type="button" id="snooze5Btn" class="toast-snooze-btn">💤 5m</button>
+        <button type="button" id="snooze10Btn" class="toast-snooze-btn">💤 10m</button>
+      </div>
+    </div>
+    <button type="button" id="closeToastBtn" class="toast-close">✕</button>
+  </div>
+
+  <div class="app-shell">
+    <!-- Premium Header with Custom MEO Logo & Typography -->
+    <header class="top-bar">
+      <div class="brand">
+        <div class="meo-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5c-4.5 0-8 3.2-8 7.5 0 4.1 3.4 7.5 8 7.5s8-3.4 8-7.5C20 8.2 16.5 5 12 5z"/>
+            <path d="M5.5 7.5 4 3l4.5 2"/>
+            <path d="M18.5 7.5 20 3l-4.5 2"/>
+            <path d="M12 9.5v3l2 1.2"/>
+          </svg>
+        </div>
+        <div class="brand-wordmark">
+          <div class="meo-title-row">
+            <span class="meo-main">MEO</span>
+            <span class="meo-divider"></span>
+            <span class="meo-sub">ALARM</span>
+          </div>
+          <span class="brand-tagline">SMART WAKE &amp; SCHEDULE</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" id="themeToggle" class="icon-pill" title="Theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+        </button>
+        <button type="button" id="settingsBtn" class="icon-pill" title="Settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Luxury Hero Clock -->
+    <section class="hero-card">
+      <div class="hero-ring"></div>
+      <div class="blue-punchline">
+        ⏰ Your time. Your goals.<br />
+        I'm your reminder 🖤
+      </div>
+      <div id="liveTime" class="hero-digits">12:00:00 AM</div>
+      <div id="liveDate" class="hero-date">Loading...</div>
+      <div id="nextAlarmCountdown" class="countdown-pill">⏳ No active alarm</div>
+    </section>
+
+    <!-- Navigation Switcher -->
+    <nav class="nav-pills">
+      <button type="button" class="nav-btn active" onclick="switchTab('alarmTab', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/></svg>
+        <span data-i18n="tabAlarm">Alarm</span>
+      </button>
+      <button type="button" class="nav-btn" onclick="switchTab('routineTab', this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <span data-i18n="tabRoutine">7-Day Routine</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: ALARM (MAX 12 ALARMS, GLOBAL TARGET OBJECT & RINGTONE FROM SETTINGS) -->
+    <main id="alarmTab" class="tab-view active">
+      <section class="card">
+        <div class="card-top">
+          <h2 data-i18n="newAlarmTitle">Add New Alarm</h2>
+          <span id="alarmCountBadge" class="chip chip-green">0 / 12</span>
+        </div>
+
+        <div class="field">
+          <label data-i18n="selectTime">Alarm Time</label>
+          <div class="time-row" id="alarmTimeBuilder">
+            <select id="alarmHour" class="input"></select>
+            <select id="alarmMinute" class="input"></select>
+            <select id="alarmAmPm" class="input">
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dismiss Mode Selector -->
+        <div class="field">
+          <label data-i18n="dismissModeLabel">Alarm Dismiss Method</label>
+          <div class="mode-switcher">
+            <button type="button" id="modeStopBtn" class="mode-opt active" onclick="selectDismissMode('stop')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+              <span data-i18n="modeStopText">Normal Stop (1m)</span>
+            </button>
+            <button type="button" id="modePhotoBtn" class="mode-opt" onclick="selectDismissMode('photo')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span data-i18n="modePhotoText">Object Photo (6m)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Global Target Object Status Hint (Managed in Settings) -->
+        <div id="photoModeHintBox" class="sub-panel hidden">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <img id="alarmTabRefThumb" alt="Target" style="width:44px; height:44px; border-radius:10px; object-fit:cover; border:1px solid var(--border); display:none;" />
+              <div>
+                <strong style="font-size:0.82rem; display:block;" data-i18n="globalTargetLabel">Global Target Photo</strong>
+                <span id="alarmTabRefStatus" style="font-size:0.75rem; color:var(--green);" data-i18n="noObjSaved">No target photo saved in Settings</span>
+              </div>
+            </div>
+            <button type="button" id="goToSettingsPhotoBtn" class="btn btn-soft" style="padding:7px 11px; font-size:0.76rem; flex-shrink:0;" data-i18n="setInSettingsBtn">Set in Settings</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label-flex">
+            <label data-i18n="volumeLevel">Alarm Volume (Low – High)</label>
+            <span id="volLabel" class="val-tag">80%</span>
+          </div>
+          <input type="range" id="volumeSlider" class="slider" min="10" max="100" value="80" />
+        </div>
+
+        <button type="button" id="addAlarmBtn" class="btn btn-brand full">
+          + <span data-i18n="setAlarmBtn">Add Alarm</span>
+        </button>
+        <div id="alarmLimitNote" class="status-note" style="color: #ef4444; display: none;"></div>
+      </section>
+
+      <!-- Scheduled Alarms -->
+      <section class="card">
+        <div class="card-top">
+          <h2 data-i18n="activeAlarmsTitle">Scheduled Alarms</h2>
+          <span id="alarmListCounter" style="font-size: 0.78rem; color: var(--muted); font-weight: 700;">0 / 12</span>
+        </div>
+        <ul id="alarmList" class="clean-list"></ul>
+      </section>
+    </main>
+
+    <!-- TAB 2: 7-DAY MULTI-TASK ROUTINE -->
+    <main id="routineTab" class="tab-view hidden">
+      <section class="card">
+        <div class="card-top">
+          <h2 data-i18n="notifTitle">Routine Reminder Alerts</h2>
+          <span class="chip chip-green" data-i18n="noSoundBadge">Kitten Meow Alert</span>
+        </div>
+        <p class="card-sub" data-i18n="notifDesc">
+          Starting 1 hour before each task, MEO reminds you every 15 minutes (60m, 45m, 30m, 15m prior &amp; on time) with a cute kitten meow &amp; notification.
+        </p>
+        <div class="btn-grid">
+          <button type="button" id="enableNotifBtn" class="btn btn-soft">
+            <span data-i18n="enableNotifBtn">Enable Notifications</span>
+          </button>
+          <button type="button" id="testMeowBtn" class="btn btn-soft">
+            🐱 <span data-i18n="testMeowText">Test Meow</span>
+          </button>
+        </div>
+        <div id="notifStatus" class="status-note"></div>
+      </section>
+
+      <!-- Multi-Task Routine Form -->
+      <section class="card">
+        <div class="card-top">
+          <h2 data-i18n="routineFormTitle">Add Task to 7-Day Routine</h2>
+        </div>
+
+        <div class="field">
+          <label data-i18n="selectDay">Select Day (Add multiple tasks per day)</label>
+          <select id="routineDay" class="input">
+            <option value="6" data-i18n="daySat">Saturday</option>
+            <option value="0" data-i18n="daySun">Sunday</option>
+            <option value="1" data-i18n="dayMon">Monday</option>
+            <option value="2" data-i18n="dayTue">Tuesday</option>
+            <option value="3" data-i18n="dayWed">Wednesday</option>
+            <option value="4" data-i18n="dayThu">Thursday</option>
+            <option value="5" data-i18n="dayFri">Friday</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label data-i18n="taskTimeLabel">Task Time</label>
+          <div class="time-row" id="taskTimeBuilder">
+            <select id="taskHour" class="input"></select>
+            <select id="taskMinute" class="input"></select>
+            <select id="taskAmPm" class="input">
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label data-i18n="taskNameLabel">Task Title</label>
+          <input type="text" id="taskName" class="input" placeholder="e.g., Morning Class / Project Presentation" />
+        </div>
+
+        <div class="field">
+          <label data-i18n="taskNoteLabel">Short Note (Shown in notification)</label>
+          <textarea id="taskNote" class="input textarea" rows="2" placeholder="Write a short reminder note..."></textarea>
+        </div>
+
+        <button type="button" id="addRoutineBtn" class="btn btn-brand full">
+          + <span data-i18n="addRoutineBtn">Add Task</span>
+        </button>
+      </section>
+
+      <!-- Grouped 7-Day Schedule -->
+      <section class="card">
+        <div class="card-top">
+          <h2 data-i18n="weeklyScheduleTitle">7-Day Schedule</h2>
+        </div>
+        <div id="routineGroupedList" class="grouped-days"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- SETTINGS MODAL (PERMANENT RINGTONE + GLOBAL TARGET OBJECT PHOTO) -->
+  <div id="settingsModal" class="overlay hidden">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2 data-i18n="settingsTitle">Settings</h2>
+        <button type="button" id="closeSettingsBtn" class="icon-pill">✕</button>
+      </div>
+
+      <!-- Global Target Object Photo Setting (Direct Camera Only) -->
+      <div class="setting-item" style="flex-direction: column; align-items: stretch; gap: 8px;">
+        <div>
+          <strong data-i18n="permObjTitle">Permanent Target Object Photo</strong>
+          <p data-i18n="permObjDesc">Capture an object directly with your camera for all Photo-Verification alarms</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; background:var(--field); padding:8px; border-radius:12px; border:1px solid var(--border);">
+          <img id="savedRefImg" alt="Saved Target" style="width:52px; height:52px; border-radius:10px; object-fit:cover; border:1px solid var(--border);" hidden />
+          <div style="flex:1;">
+            <div id="refStatus" class="status-note" style="margin-top:0;" data-i18n="noObjSaved">No target photo saved yet</div>
+          </div>
+        </div>
+        <button type="button" id="openSetupCamBtn" class="btn btn-brand full" style="margin-top:2px;">
+          📷 <span data-i18n="openCam">Open Camera &amp; Capture</span>
+        </button>
+      </div>
+
+      <!-- Permanent Alarm Ringtone Setting -->
+      <div class="setting-item" style="flex-direction: column; align-items: stretch; gap: 8px;">
+        <div>
+          <strong data-i18n="permToneTitle">Permanent Alarm Ringtone</strong>
+          <p data-i18n="permToneDesc">Applies permanently to all alarms from your phone</p>
+        </div>
+        <input type="file" id="phoneAudioInput" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac" hidden />
+        <div class="audio-picker-box">
+          <button type="button" id="pickPhoneAudioBtn" class="btn btn-soft full" style="overflow:hidden;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            <span id="selectedAudioName" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Default Chime</span>
+          </button>
+          <button type="button" id="previewToneBtn" class="btn btn-soft icon-only" title="Preview">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+          <button type="button" id="resetToneBtn" class="btn btn-soft icon-only" title="Reset to Default">↺</button>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <strong data-i18n="meowSoundTitle">Notification Kitten Sound</strong>
+          <p data-i18n="meowSoundDesc">Play cute cat meow on routine alerts</p>
+        </div>
+        <select id="meowSoundSelect" class="input mini-select">
+          <option value="on">On (Meow)</option>
+          <option value="off">Off (Silent)</option>
+        </select>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <strong data-i18n="vibrateTitle">Notification Vibration</strong>
+          <p data-i18n="vibrateDesc">Vibrate phone when alert arrives</p>
+        </div>
+        <select id="vibrateSelect" class="input mini-select">
+          <option value="on">On (Vibrate)</option>
+          <option value="off">Off</option>
+        </select>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <strong data-i18n="timeFormatTitle">Time Format</strong>
+          <p data-i18n="timeFormatDesc">12-Hour (AM/PM) or 24-Hour</p>
+        </div>
+        <select id="timeFormatSelect" class="input mini-select">
+          <option value="12">12-Hour (AM/PM)</option>
+          <option value="24">24-Hour</option>
+        </select>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <strong data-i18n="langSettingTitle">Language</strong>
+          <p data-i18n="langSettingDesc">English or বাংলা</p>
+        </div>
+        <select id="languageSelect" class="input mini-select">
+          <option value="en">English</option>
+          <option value="bn">বাংলা (Bangla)</option>
+        </select>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <strong data-i18n="themeSettingTitle">Theme</strong>
+          <p data-i18n="themeSettingDesc">Dark or Light appearance</p>
+        </div>
+        <select id="themeSelect" class="input mini-select">
+          <option value="dark">Dark Mode</option>
+          <option value="light">Light Mode</option>
+        </select>
+      </div>
+
+      <button type="button" id="doneSettingsBtn" class="btn btn-brand full" style="margin-top: 16px;" data-i18n="doneBtn">Save &amp; Close</button>
+    </div>
+  </div>
+
+  <!-- FULL-SCREEN CAMERA CAPTURE OVERLAY (WHEN SAVING TARGET PHOTO IN SETTINGS) -->
+  <div id="setupFullScreenCam" class="fullscreen-cam-overlay hidden">
+    <video id="setupVideo" autoplay playsinline muted></video>
+    <div class="cam-top-hud">
+      <div class="target-pill-hud">
+        <span style="padding-left:8px; font-weight:700; font-size:0.85rem;" data-i18n="captureTargetHint">Capture Target Object</span>
+      </div>
+      <button type="button" id="closeSetupCamBtn" class="icon-pill" style="background:rgba(15,23,42,0.9); color:#fff; border-color:rgba(255,255,255,0.2);">✕</button>
+    </div>
+    <div class="cam-bottom-hud">
+      <div class="hud-btn-row">
+        <button type="button" id="captureRefBtn" class="btn btn-brand hud-main-btn">
+          📸 <span data-i18n="saveObj">Save Target Photo</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 1: NORMAL STOP ALARM MODAL (1 MINUTE AUTO-TIMEOUT) -->
+  <div id="normalRingingModal" class="overlay hidden">
+    <div class="sheet center-text">
+      <div class="alarm-badge">MEO ALARM • 1 MIN</div>
+      <h2 data-i18n="alarmRingingTitle">ALARM RINGING</h2>
+      <div id="normalRingingTime" class="ringing-clock">07:00 AM</div>
+      <p class="card-sub" data-i18n="normalStopDesc">Tap the button below to stop this alarm (auto-stops in 1 min).</p>
+      <div style="display:flex; gap:10px;">
+        <button type="button" id="alarmSnooze5Btn" class="btn btn-soft" style="flex:1; padding:16px; font-size:0.95rem;">
+          💤 <span data-i18n="snooze5Text">Snooze 5m</span>
+        </button>
+        <button type="button" id="normalStopBtn" class="btn btn-danger" style="flex:1.4; padding: 16px; font-size: 1.05rem;">
+          ⏹ <span data-i18n="stopAlarmBtn">STOP</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: COMPACT PHOTO VERIFICATION MODAL + 30s LONG PRESS BYPASS (6 MIN AUTO-TIMEOUT) -->
+  <div id="photoMissionFullScreen" class="overlay hidden">
+    <div class="sheet center-text" style="max-width: 400px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div class="target-pill-hud" style="padding:5px 12px 5px 5px; background:var(--field); border-color:var(--border); color:var(--text);">
+          <img id="targetPreview" alt="Target" style="width:40px; height:40px; border-radius:8px; object-fit:cover;" />
+          <div style="text-align:left;">
+            <span class="hud-label" data-i18n="targetRefLabel">Target Object</span>
+            <strong id="photoRingingTime" style="font-size:0.95rem;">08:30 AM</strong>
+          </div>
+        </div>
+        <span class="alarm-badge" style="margin:0;">6 MIN MAX</span>
+      </div>
+
+      <!-- Compact Live Camera Window (NOT Full-Screen) -->
+      <div class="compact-verify-cam-box">
+        <video id="missionVideo" autoplay playsinline muted></video>
+        <div id="matchFeedback" class="compact-status-badge" data-i18n="waitingScan">Point camera at target object</div>
+      </div>
+
+      <!-- Direct Live Camera Scan Button Only -->
+      <div class="hud-btn-row" style="margin-top:12px;">
+        <button type="button" id="verifyPhotoBtn" class="btn btn-brand hud-main-btn full" style="padding:14px;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span data-i18n="scanVerifyBtn">Scan Object</span>
+        </button>
+      </div>
+
+      <!-- 30-Second Emergency Long-Press Bypass Button -->
+      <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:12px;">
+        <button type="button" id="emergencyHoldBtn" class="hold-bypass-btn">
+          <div id="holdProgressFill" class="hold-progress-fill"></div>
+          <span id="holdBtnLabel" class="hold-btn-text" data-i18n="holdBypassIdle">Can't scan? Hold 30s to Stop</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "appId": "com.meomeo.meoalarm",
+  "appName": "MEO ALARM",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true
+  }
+}
