@@ -535,10 +535,10 @@ public class MainActivity extends BridgeActivity {{
     }}
 
     @Override
-    protected void onResume() {{ super.onResume(); enableLockScreenWakeup(); dispatchRingingIdToWeb(getIntent()); }}
+    public void onResume() {{ super.onResume(); enableLockScreenWakeup(); dispatchRingingIdToWeb(getIntent()); }}
 
     @Override
-    protected void onNewIntent(Intent intent) {{ super.onNewIntent(intent); setIntent(intent); enableLockScreenWakeup(); dispatchRingingIdToWeb(intent); }}
+    public void onNewIntent(Intent intent) {{ super.onNewIntent(intent); setIntent(intent); enableLockScreenWakeup(); dispatchRingingIdToWeb(intent); }}
 
     private void dispatchRingingIdToWeb(Intent intent) {{
         String ringingId = intent != null ? intent.getStringExtra("ringingAlarmId") : null;
